@@ -16,6 +16,8 @@ module.exports = (userRepository) => ({
     },
 
     async loginUsuario({ email, password }) {
+        if (!email || !password) throw new Error('Credenciales inválidas');
+            
         const usuario = await userRepository.findByEmail(email);
         if (!usuario) throw new Error('Credenciales inválidas');
 
@@ -43,12 +45,12 @@ module.exports = (userRepository) => ({
     async resetPassword(email) {
         const usuario = await userRepository.findByEmail(email);
         if (!usuario) throw new Error('Usuario no encontrado');
-
+    
         const newPassword = Math.random().toString(36).slice(-8);
         const passwordHash = bcrypt.hashSync(newPassword, bcrypt.genSaltSync());
-
+    
         await userRepository.updatePassword(usuario.id, passwordHash);
-        return { msg: `Nueva contraseña generada: ${newPassword}` };
+        return { msg: `Password restablecido para ${usuario.email}` };
     },
 
     async revalidarToken(uid) {
