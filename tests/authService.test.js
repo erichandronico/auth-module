@@ -74,6 +74,41 @@ describe('Auth Service', () => {
                 password2: 'password123',
             })).rejects.toThrow('El usuario ya existe');
         });
+
+        test('Debe devolver un objeto "usuario" con uid y email al registrar un usuario, más los otros datos que se pasen', async () => {
+            mockUserRepository.findByEmail.mockResolvedValue(null);
+            mockUserRepository.createUser.mockResolvedValue({
+                id: '123',
+                email: 'test@example.com',
+                nombre: 'Test User',
+                apellido: 'Apellido Test',
+                telefono: '1234567890',
+                direccion: 'Calle Test 123',
+                ciudad: 'Ciudad Test',
+                codigoPostal: '12345',
+                pais: 'Pais Test'
+            });
+    
+            const result = await authService.crearUsuario({
+                email: 'test@example.com',
+                password: 'password123',
+                password2: 'password123',
+                nombre: 'Test User',
+                apellido: 'Apellido Test',
+                telefono: '1234567890',
+                direccion: 'Calle Test 123',
+                ciudad: 'Ciudad Test',
+                codigoPostal: '12345',
+                pais: 'Pais Test'
+            });
+    
+            expect(result).toHaveProperty('usuario');
+            expect(result.usuario).toHaveProperty('uid', '123');
+            expect(result.usuario).toHaveProperty('email', 'test@example.com');
+            expect(result.usuario).toHaveProperty('nombre', 'Test User');
+            expect(result).toHaveProperty('token', 'mock_token');
+        });
+
     });
 
     // 📌 LOGIN USUARIO
