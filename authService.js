@@ -27,7 +27,7 @@ module.exports = (userRepository) => ({
         const usuario = await userRepository.createUser({ email, password: passwordHash, ...datos });
 
         const token = await generarJWT(usuario.id);
-        return { uid: usuario.id, email: usuario.email, datos, token };
+        return { uid: usuario.id, usuario: { email: usuario.email, ...datos }, token };
     },
 
     async loginUsuario({ email, password }) {
