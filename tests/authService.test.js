@@ -58,7 +58,7 @@ describe('Auth Service', () => {
     // 🔹 Test: No debe permitir cambiar la contraseña si el usuario no existe
     test('cambiarPassword debe fallar si el usuario no existe', async () => {
         mockUserRepository.findById.mockResolvedValue(null);
-        
+
         await expect(authService.cambiarPassword({
             uid: '123',
             password: 'oldpassword',
@@ -134,4 +134,21 @@ describe('Auth Service', () => {
         expect(result.token).toBe('mock_token');
     });
 
+    // 🔹 Test: No debe permitir crear un usuario si el email no es válido
+    test('crearUsuario debe fallar si el email no es válido', async () => {
+        await expect(authService.crearUsuario({
+            email: 'testnew',
+            password: 'password123',
+            password2: 'password123',
+        })).rejects.toThrow('El email no es válido');
+    });
+
+    // Test: no debe permitir crear un usuario si no se proporciona un email
+    test('crearUsuario debe fallar si no se proporciona un email', async () => {
+        await expect(authService.crearUsuario({
+            password: 'password123',
+            password2: 'password123',
+        })).rejects.toThrow('El email es requerido');
+    });
+    
 });
