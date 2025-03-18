@@ -2,10 +2,18 @@ const bcrypt = require('bcryptjs');
 const { generarJWT } = require('./jwtService');
 
 module.exports = (userRepository) => ({
-    async crearUsuario({ email, password  }) {
+    async crearUsuario({ email, password, password2  }) {
         const userExists = await userRepository.findByEmail(email);
         if (userExists) {
             throw new Error('El usuario ya existe');
+        }
+
+        if (!password || !password2) {
+            throw new Error('Las contraseñas no pueden estar vacías');
+        } 
+        
+        if (password !== password2) {
+            throw new Error('Las contraseñas no coinciden');
         }
 
         const passwordHash = bcrypt.hashSync(password, bcrypt.genSaltSync());

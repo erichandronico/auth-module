@@ -58,12 +58,35 @@ describe('Auth Service', () => {
     // 🔹 Test: No debe permitir cambiar la contraseña si el usuario no existe
     test('cambiarPassword debe fallar si el usuario no existe', async () => {
         mockUserRepository.findById.mockResolvedValue(null);
-
+        
         await expect(authService.cambiarPassword({
             uid: '123',
             password: 'oldpassword',
             newPassword: 'newpassword',
         })).rejects.toThrow('Usuario no encontrado');
+    });
+
+    // 🔹 Test: No debe permitir crear un usuario si las contraseñas no coinciden
+    test('crearUsuario debe fallar si las contraseñas no coinciden', async () => {
+        mockUserRepository.findByEmail.mockResolvedValue(null);
+
+        await expect(authService.crearUsuario({
+            email: 'testnew@example.com',
+            password: 'password123',
+            password2: 'password124',
+        })).rejects.toThrow('Las contraseñas no coinciden');
+        // expect(mockUserRepository.createUser).not.toHaveBeenCalled();
+    });
+
+    // 🔹 Test: No debe permitir crear un usuario si las contraseñas están vacías
+    test('crearUsuario debe fallar si las contraseñas están vacías', async () => {
+        mockUserRepository.findByEmail.mockResolvedValue(null);
+
+        await expect(authService.crearUsuario({
+            email: 'testnew@example.com',
+            nombre: 'testnew',
+            password2: '',
+        })).rejects.toThrow('Las contraseñas no pueden estar vacías');
     });
 
     // 🔹 Test: Debe actualizar correctamente la contraseña si la actual es válida
