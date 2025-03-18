@@ -33,7 +33,8 @@ module.exports = (userRepository) => {
 
         async resetPassword(req, res) {
             try {
-                const data = await authService.resetPassword(req.body.email);
+                const { email, sendEmail } = req.body;
+                const data = await authService.resetPassword(email, sendEmail);
                 res.json({ ok: true, tipo: "success", msg: "Contraseña restablecida correctamente", ...data });
             } catch (error) {
                 res.status(400).json({ ok: false, tipo: "error", msg: error.message });

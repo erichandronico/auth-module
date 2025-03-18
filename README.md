@@ -35,7 +35,7 @@ mi-backend/
 │── repositories/
 │   ├── userRepository.js  # Módulo de base de datos para usuarios
 │── models/
-│   ├── Usuario.js  # Modelo de Mongoose para usuarios
+│   ├── Usuario.js  # Modelo (por ejemplo, de Mongoose) para usuarios
 │── routes/
 │   ├── authRoutes.js  # Rutas adicionales (si es necesario)
 │── package.json
@@ -79,11 +79,15 @@ module.exports = userRepository;
 const mongoose = require('mongoose');
 
 const UsuarioSchema = new mongoose.Schema({
-    nombre: { type: String, required: true },
+    // campos requeridos
     email: { type: String, required: true, unique: true },
-    telefono: { type: String },
     password: { type: String, required: true },
+    // campos opcionales
+    nombre: { type: String, required: true },
+    apellido: { type: String, required: true },
+    telefono: { type: String },
     roleId: { type: String, required: true, default: 'user' },
+    //etc
 }, { timestamps: true });
 
 module.exports = mongoose.model('Usuario', UsuarioSchema);
@@ -125,10 +129,13 @@ POST /auth/register
 📄 **Body JSON:**
 ```json
 {
-    "nombre": "Juan Perez",
-    "email": "juan@example.com",
-    "telefono": "+56912345678",
+    "email": "cmarx@gmail.com",
     "password": "123456",
+    "password2": "123456",
+    //campos opcionales
+    "nombre": "Carlos",
+    "apellido": "Marx",
+    "telefono": "+56912345678",
     "roleId": "admin"
 }
 ```
@@ -136,9 +143,12 @@ POST /auth/register
 ```json
 {
     "ok": true,
-    "uid": "64b3f42e...
-    "email": "juan@example.com",
-    "roleId": "admin",
+    "uid": "64b3f42e..."
+    "email": "cmarx@gmail.com",
+    "nombre": "Carlos",
+    "apellido": "Marx",
+    "telefono": "+56912345678",
+    "roleId": "admin"
     "token": "eyJhbGci..."
 }
 ```
@@ -160,7 +170,6 @@ POST /auth/login
     "ok": true,
     "uid": "64b3f42e...",
     "email": "juan@example.com",
-    "roleId": "admin",
     "token": "eyJhbGci..."
 }
 ```
@@ -178,7 +187,6 @@ Authorization: Bearer <TOKEN>
 {
     "ok": true,
     "uid": "64b3f42e...",
-    "roleId": "admin",
     "token": "eyJhbGci..."
 }
 ```
@@ -192,7 +200,8 @@ POST /auth/change-password
 {
     "uid": "64b3f42e...",
     "password": "123456",
-    "newPassword": "nuevaClave123"
+    "newPassword": "nuevaClave123",
+    "newPassword2": "nuevaClave123",
 }
 ```
 
@@ -200,21 +209,46 @@ POST /auth/change-password
 ```http
 POST /auth/reset-password
 ```
+
 📄 **Body JSON:**
 ```json
 {
     "email": "juan@example.com"
 }
 ```
-📄 **Respuesta:**
+
+📄 **Respuesta Exitosa (200 OK):**
 ```json
 {
     "ok": true,
-    "msg": "Nueva contraseña generada: x1y2z3"
+    "msg": "Se ha enviado una nueva contraseña a tu correo."
 }
 ```
 
+📌 **Descripción:**  
+- Se generará una nueva contraseña aleatoria.  
+- La contraseña se guardará en la base de datos.  
+- Se enviará al correo del usuario.  
+- **Por seguridad, la contraseña NO se devuelve en la respuesta de la API.**  
+
 ---
+
+#### 🔴 **Posibles Errores**
+
+| Código | Mensaje                          | Explicación |
+|--------|----------------------------------|-------------|
+| 400    | `"Usuario no encontrado"`        | El email ingresado no está registrado. |
+| 500    | `"Error enviando el correo"`     | Hubo un problema al enviar el email. |
+
+---
+
+#### 📌 **Ejemplo de Uso con `curl`**
+```sh
+curl -X POST http://localhost:4000/auth/reset-password \
+     -H "Content-Type: application/json" \
+     -d '{"email": "juan@example.com"}'
+```
+
 
 ## 📌 Conclusión
 Con este módulo puedes **agregar autenticación y gestión de usuarios** a cualquier backend Node.js sin repetir código.
